@@ -4,7 +4,7 @@
 #include <sourcemod>
 #include <sdktools>
 
-#define PLUGIN_VERSION "1.0.0"
+#define PLUGIN_VERSION "1.1.0"
 
 #define SF_BREAK_TRIGGER_ONLY 1
 #define PERMANENT_HEALTH 1000000
@@ -18,21 +18,54 @@ public Plugin myinfo =
   url = "https://BadServers.net"
 };
 
+int g_BrokenCount;
+bool g_ClientNotified[MAXPLAYERS + 1];
+
 public void OnPluginStart()
 {
   HookEvent("round_start", OnRoundStart, EventHookMode_PostNoCopy);
+  HookEvent("player_team", OnPlayerTeam, EventHookMode_Post);
+}
+
+public void OnMapStart()
+{
+  g_BrokenCount = 0;
+}
+
+public void OnClientConnected(int client)
+{
+  g_ClientNotified[client] = false;
 }
 
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
-  int brokenCount = BreakBreakables();
+  g_BrokenCount = BreakBreakables();
+}
 
-  if (brokenCount == 0)
+public void OnPlayerTeam(Event event, const char[] name, bool dontBroadcast)
+{
+  bool isDisconnecting = event.GetBool("disconnect");
+
+  if (isDisconnecting)
   {
     return;
   }
 
-  PrintToChatAll(" \x04[BadServers]\x01 Broke \x04%d\x01 breakable%s.", brokenCount, brokenCount == 1 ? "" : "s");
+  int userId = event.GetInt("userid");
+  int client = GetClientOfUserId(userId);
+
+  if (client == 0 || IsFakeClient(client))
+  {
+    return;
+  }
+
+  if (g_ClientNotified[client] || g_BrokenCount == 0)
+  {
+    return;
+  }
+
+  g_ClientNotified[client] = true;
+  PrintToChat(client, " \x04[BadServers]\x01 Broke \x04%d\x01 breakable%s on this map.", g_BrokenCount, g_BrokenCount == 1 ? "" : "s");
 }
 
 int BreakBreakables()

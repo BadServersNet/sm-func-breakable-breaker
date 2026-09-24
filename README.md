@@ -10,7 +10,7 @@ After `round_start`, the plugin sends the `Break` input to every `func_breakable
 - entities with 0 health, which cannot take damage;
 - entities with 1,000,000 or more health, which mappers use for permanent sensors.
 
-When at least one entity breaks, the plugin prints the count in chat.
+When at least one entity broke, each player sees the count in chat the first time they join a team on the map.
 
 ## Commands
 
