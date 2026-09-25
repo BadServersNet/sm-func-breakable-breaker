@@ -30,7 +30,7 @@ jobs:
       - name: Set up SourcePawn
         uses: rumblefrog/setup-sp@v1.3.1
         with:
-          version: "1.11.x"
+          version: "1.12.x"
 
       - name: Verify tag version
         if: startsWith(github.ref, 'refs/tags/')
